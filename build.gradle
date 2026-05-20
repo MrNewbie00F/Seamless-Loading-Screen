@@ -1,6 +1,6 @@
 plugins {
     id "architectury-plugin" version "3.4-SNAPSHOT"
-    id "dev.architectury.loom" version "1.7-SNAPSHOT" apply false
+    id "net.fabricmc.fabric-loom" version "${loom_version}" apply false
 }
 
 architectury {
@@ -8,18 +8,19 @@ architectury {
 }
 
 subprojects {
-    apply plugin: "dev.architectury.loom"
+    apply plugin: "net.fabricmc.fabric-loom"
 
     loom {
-        silentMojangMappingsLicense()
+        // 26.1+ is unobfuscated, so no Yarn/Mojang mapping license handling needed here.
     }
 
     dependencies {
         minecraft "com.mojang:minecraft:${rootProject.minecraft_version}"
-        mappings loom.layered {
-            it.mappings("net.fabricmc:yarn:$rootProject.yarn_mappings:v2")
-            it.mappings("dev.architectury:yarn-mappings-patch-neoforge:$rootProject.yarn_mappings_patch_neoforge_version")
-        }
+
+        // IMPORTANT:
+        // No mappings line for Minecraft 26.1+
+        // No Yarn mappings
+        // No yarn-mappings-patch-neoforge
     }
 }
 
@@ -28,8 +29,8 @@ allprojects {
     apply plugin: "architectury-plugin"
     apply plugin: "maven-publish"
 
-    sourceCompatibility = JavaVersion.VERSION_21
-    targetCompatibility = JavaVersion.VERSION_21
+    sourceCompatibility = JavaVersion.toVersion(25)
+    targetCompatibility = JavaVersion.toVersion(25)
 
     archivesBaseName = rootProject.archives_base_name
     version = rootProject.mod_version
@@ -39,40 +40,45 @@ allprojects {
         maven { url "https://maven.terraformersmc.com/releases/" }
         maven { url "https://maven.quiltmc.org/repository/release" }
         maven { url "https://oss.sonatype.org/content/repositories/snapshots" }
+
         maven {
             name = "Modrinth"
             url "https://api.modrinth.com/maven"
             content { includeGroup "maven.modrinth" }
         }
-        maven { url 'https://maven.isxander.dev/releases' }
-        maven { url 'https://jitpack.io' }
+
+        maven { url "https://maven.isxander.dev/releases" }
+        maven { url "https://jitpack.io" }
+
         maven {
             name = "Ladysnake Libs"
-            url = 'https://maven.ladysnake.org/releases'
+            url = "https://maven.ladysnake.org/releases"
         }
+
         maven {
-            url = 'https://maven.cafeteria.dev'
+            url = "https://maven.cafeteria.dev"
             content {
-                includeGroup 'net.adriantodt.fabricmc'
+                includeGroup "net.adriantodt.fabricmc"
             }
         }
+
         maven {
             url "https://maven.jamieswhiteshirt.com/libs-release"
             content {
                 includeGroup "com.jamieswhiteshirt"
             }
         }
+
         maven { url "https://maven.shedaniel.me/" }
         maven { url "https://maven.terraformersmc.com/" }
     }
 
-    tasks.withType(JavaCompile) {
+    tasks.withType(JavaCompile).configureEach {
         options.encoding = "UTF-8"
-        options.release = 21
+        options.release = 25
     }
 
     java {
         withSourcesJar()
     }
 }
-

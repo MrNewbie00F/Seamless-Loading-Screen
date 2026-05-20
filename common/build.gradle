@@ -7,10 +7,13 @@ loom {
 }
 
 dependencies {
-    // We depend on fabric loader here to use the fabric @Environment annotations and get the mixin dependencies
-    // Do NOT use other classes from fabric loader
-    modImplementation "net.fabricmc:fabric-loader:${rootProject.fabric_loader_version}"
-    modImplementation "dev.isxander:yet-another-config-lib:${rootProject.yacl_version}-fabric"
+    // Used only for @Environment annotations and mixin-related compile classes.
+    // Do not use Fabric Loader runtime classes from common code.
+    compileOnly "net.fabricmc:fabric-loader:${rootProject.fabric_loader_version}"
+
+    // Your gradle.properties yacl_version already includes "-fabric",
+    // so do NOT add "-fabric" again here.
+    compileOnly "dev.isxander:yet-another-config-lib:${rootProject.yacl_version}"
 }
 
 publishing {
@@ -21,7 +24,6 @@ publishing {
         }
     }
 
-    // See https://docs.gradle.org/current/userguide/publishing_maven.html for information on how to set up publishing.
     repositories {
         // Add repositories to publish to here.
     }
